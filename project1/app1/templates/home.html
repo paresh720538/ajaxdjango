@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        <input type="text" placeholder="Enter your name" id="name" />
+        <input type="email" placeholder="Email" id="email" />
+        <button id="btn" >Submit</button>
+    </div>
+    <button id="show">Show Data</button><br/>
+    <div id="containt"></div>i
+    <div id="result"></div>
+
+    <script>
+        $(document).ready(function(){
+
+            function updateajax(data){
+                let output='';
+                output+=`<input id=uname type=text value=${data[0].name} />`;
+                output+=`<input id=uemail type=text value=${data[0].email} />`;
+                output+=`<input id=uuid type=text value=${data[0].id} />`;
+                output+=`<input id=usbt type=submit value=submit />`;
+
+                $('#result').html(output);
+            }
+
+            function showtable(data){
+                let res = ''
+                res +=  `<table><tr><th>Name</th> <th>Email</th> <th>Action</th></tr>`;
+                for (let i in data) {
+                   res+= ` <tr><td>${data[i].name}</td> <td> ${data[i].email} </td> <td> <button id=btn-del btn-id=${data[i].id}> Delete </button><button id=btn-up up-id=${data[i].id}> Update </button> </td></tr>`;
+                }
+                res+=`</table>`;
+                $('#containt').html(res);
+            }
+
+
+            $('#btn').click(function(){
+                let name = $('#name').val();
+                let email = $('#email').val();
+                $.ajax({
+                    url:'create',
+                    type:'GET',
+                    data:{name:name ,email:email},//data send to server side 
+                    success:function(data){
+                        console.log(data.status)
+                        if (data.status == true) {
+                            shilpee()
+                            $('#name').val('');
+                             $('#email').val('');
+                        }
+                    }
+                })
+            })//creating
+            function shilpee(){
+                $.ajax({
+                    url:'ashow',
+                    type:'GET',
+                    success:function(data){
+                        showtable(data)
+                    }
+                })
+            }
+            $('#show').click(function () {
+                $.ajax({
+                    url:'show',
+                    type:'GET',
+                    success:function(data){
+                        showtable(data)
+                    }
+                })
+            })
+
+            $(document).on('click', '#btn-del', function(){
+                let did=$(this).attr("btn-id")
+                $.ajax({
+                    url:"delete",
+                    type:"GET",
+                    data:{did:did},
+                    success:function(data){
+                        if(data.status){
+                            shilpee()
+                        }
+
+                    }
+                })
+            })
+            //editing
+            $(document).on('click', '#btn-up', function(){
+                let uid=$(this).attr("up-id")
+                $.ajax({
+                    url:"update",
+                    type:"GET",
+                    data:{uid:uid},
+                    success:function(data){
+                        updateajax(data)
+
+                    }
+                })
+            })
+
+            $(document).on('click', '#usbt', function(){
+                let uname=$( "#uname" ).val();
+                let uemail=$( "#uemail" ).val();
+                let uuid = $('#uuid').val();
+                $.ajax({
+                    url:"update1",
+                    type:"GET",
+                    data:{uname:uname,uemail:uemail, uuid:uuid},
+                    success:function(data){
+                        if(data.status){
+                            $('#result').hide();
+                            shilpee();
+                        }
+                       
+
+                    }
+                })
+            })
+            
+            
+        })
+    </script>
+</body>
+</html>
